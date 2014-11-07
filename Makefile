@@ -1,4 +1,6 @@
-#Makefile
+#
+# Makefile
+#
 PROG = myBinder
 
 EXE = $(PROG).exe
@@ -18,3 +20,4 @@ $(PROG):
 clean:
 	@cd lib; make clean
 	@cd main; make clean
+	rm -f bin/*

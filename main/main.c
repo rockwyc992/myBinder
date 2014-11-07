@@ -36,7 +36,7 @@ int main(int argc, char* argv[])
     package();
 
 
-    //list_dir(".");
+    list_dir(".");
 
     return 0;
 }

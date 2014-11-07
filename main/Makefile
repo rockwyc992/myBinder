@@ -1,7 +1,10 @@
-#main/Makefile
+#
+# main/Makefile
+#
 PROG = myBinder
 
 EXE = $(PROG).exe
+BIN = ../bin/
 CC = gcc
 
 CFLAGS = -Os -O2 -Wall \
@@ -20,7 +23,7 @@ OBJS = main.o
 all: $(PROG)
 
 $(PROG): $(OBJS)
-	$(CC) -o ../$(EXE) $(CFLAGS) $(OBJS) $(LDFLAGS) $(LIBS)
+	$(CC) -o $(BIN)/$(EXE) $(CFLAGS) $(OBJS) $(LDFLAGS) $(LIBS)
 
 clean:
 	rm -f ../$(EXE) $(OBJS)
