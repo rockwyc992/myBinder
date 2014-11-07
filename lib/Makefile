@@ -13,7 +13,9 @@ CFLAGS = -Os -O2 -Wall \
 # -D NDEBUG
 
 OBJS = \
-	dir.o
+	dir.o \
+	zip.o
+
 
 .c.o:
 	$(CC) $(CFLAGS) -c $*.c

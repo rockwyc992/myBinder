@@ -9,7 +9,7 @@ CC = gcc
 
 CFLAGS = -Os -O2 -Wall \
 	 $(SOURCE_FLAGS) -g \
-	 -Iinclude
+	 -I../include
 # -D NDEBUG
 
 LIBS = -L../lib
