@@ -4,7 +4,9 @@ BOOLEAN package (Zip_file *zip, const char *dst, const char *filename)
 {
     char *full_name = malloc(MAX_PATH);
     sprintf(full_name, "%s\\%s", dst, filename);
-    FILE *f_full_name = fopen(full_name, "rw");
+    FILE *goal = fopen(full_name, "w+");
+    printf("%s %d", full_name, goal);
+    fprintf(goal, "%d %d", zip->num_file, zip->num_dir);
     Data_file *file = zip->file;
     while(file != NULL) {
         printf("%s %d\n", file->path, file->size);
@@ -16,11 +18,14 @@ BOOLEAN package (Zip_file *zip, const char *dst, const char *filename)
 Zip_file* new_Zip_file ()
 {
     Zip_file *zip = malloc(sizeof(Zip_file));
-    zip->num = 0;
-    zip->file = NULL;
-    zip->last_file = zip->file;
+
+    zip->num_dir = 0;
     zip->dir = NULL;
     zip->last_dir = zip->dir;
+
+    zip->num_file = 0;
+    zip->file = NULL;
+    zip->last_file = zip->file;
 
     return zip;
 }
@@ -42,6 +47,9 @@ void merge_zip (Zip_file *zip, const Zip_file *dir_zip)
         zip->last_dir->next_dir = dir_zip->dir;
         zip->last_dir = dir_zip->last_dir;
     }
+
+    zip->num_dir += dir_zip->num_dir;
+    zip->num_file += dir_zip->num_file;
 }
 
 void add_zip_file (Zip_file *zip, const char *path, const WIN32_FIND_DATA *data)
@@ -62,6 +70,7 @@ void add_zip_file (Zip_file *zip, const char *path, const WIN32_FIND_DATA *data)
         zip->last_file->next_file = file;
         zip->last_file = file;
     }
+    zip->num_file++;
 }
 
 void add_zip_dir (Zip_file *zip, const char *path)
@@ -80,4 +89,5 @@ void add_zip_dir (Zip_file *zip, const char *path)
         zip->last_dir->next_dir = dir;
         zip->last_dir = dir;
     }
+    zip->num_dir++;
 }

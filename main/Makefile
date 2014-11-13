@@ -9,11 +9,12 @@ CC = gcc
 
 CFLAGS = -Os -O2 -Wall \
 	 $(SOURCE_FLAGS) -g \
-	 -I../include
+	 -I../include \
+	 -I../res
 # -D NDEBUG
 
-LIBS = -L../lib
-LDFLAGS = -l$(PROG)
+LIBS = -L../bin
+LDFLAGS = -l$(PROG) -lresource
 
 OBJS = main.o
 

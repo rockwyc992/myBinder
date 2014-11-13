@@ -21,7 +21,8 @@ typedef struct dir_file
 
 typedef struct zip_file
 {
-    int num;
+    int num_dir;
+    int num_file;
     Dir_file *dir;
     Dir_file *last_dir;
     Data_file *file;
