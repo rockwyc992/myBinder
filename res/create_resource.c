@@ -14,7 +14,7 @@ int main()
 
     int i;
     for(i = 0; i < SIZE; i++){
-        fprintf(dot_rc, "IDR_BIN%-5d    BIN    DISCARDABLE     \"resource.txt\"\n",i);
+        fprintf(dot_rc, "IDR_BIN%-5d    RCDATA    DISCARDABLE     \"resource.txt\"\n",i);
         fprintf(header, "#define IDR_BIN%-5d %d\n", i, i+SIZE);
     }
 

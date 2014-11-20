@@ -5,9 +5,13 @@
 #include <windows.h>
 #include "zip.h"
 
+const char* fullname(const char *path, const char *filename);
+
 const char* pwd ();
 
 BOOLEAN cd (const char *dir);
+
+BOOLEAN cp (const char *src, const char *dst);
 
 Zip_file* list_dir (const char *dir);
 

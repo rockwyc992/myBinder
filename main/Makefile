@@ -13,10 +13,9 @@ CFLAGS = -Os -O2 -Wall \
 	 -I../res
 # -D NDEBUG
 
-LIBS = -L../bin
-LDFLAGS = -l$(PROG) -lresource
-
-OBJS = main.o
+OBJS = main.o \
+	../lib/*.o \
+	../res/*.o
 
 .c.o:
 	$(CC) $(CFLAGS) -c $*.c
@@ -24,7 +23,8 @@ OBJS = main.o
 all: $(PROG)
 
 $(PROG): $(OBJS)
-	$(CC) -o $(BIN)/$(EXE) $(CFLAGS) $(OBJS) $(LDFLAGS) $(LIBS)
+	$(CC) -o $(EXE) $(CFLAGS) $(OBJS)
+	cp $(EXE) ../bin/$(EXE)
 
 clean:
-	rm -f ../$(EXE) $(OBJS)
+	rm -f $(EXE) $(OBJS)

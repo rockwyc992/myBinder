@@ -3,7 +3,6 @@
 #
 PROG = resource
 
-DLL = lib$(PROG).dll
 BIN = ../bin
 CC = gcc
 WINDRES = windres
@@ -21,23 +20,18 @@ RESOURCE = \
 	$(PROG).rc \
 	$(PROG).txt
 
-CREAT = creat_$(PROG)
+CREATE = create_$(PROG)
 
-all: $(DLL)
+all: $(OBJS)
 
-$(CREAT).exe: $(CREAT).c
-	$(CC) $(CFLAGS) $(CREAT).c -o $(CREAT).exe
+$(CREATE).exe: $(CREATE).c
+	$(CC) $(CFLAGS) $(CREATE).c -o $(CREATE).exe
 
-$(RESOURCE): $(CREAT).exe
-	$(CREAT)
+$(RESOURCE): $(CREATE).exe
+	$(CREATE)
 
 $(OBJS): $(RESOURCE)
 	$(WINDRES) $(PROG).rc $(PROG).o
 
-
-$(DLL): $(OBJS)
-	gcc --shared $(CFLAGS) -o $(DLL) $(OBJS)
-	cp $(DLL) $(BIN)/$(DLL)
-
 clean:
-	rm -f $(DLL) $(OBJS) $(RESOURCE) $(CREAT).exe
+	rm -f $(DLL) $(OBJS) $(RESOURCE) $(CREATE).exe

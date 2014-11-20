@@ -4,9 +4,9 @@ BOOLEAN package (Zip_file *zip, const char *dst, const char *filename)
 {
     char *full_name = malloc(MAX_PATH);
     sprintf(full_name, "%s\\%s", dst, filename);
-    FILE *goal = fopen(full_name, "w+");
-    printf("%s %d", full_name, goal);
-    fprintf(goal, "%d %d", zip->num_file, zip->num_dir);
+    //FILE *goal = fopen(full_name, "w+");
+    //printf("%s %d", full_name, goal);
+    //fprintf(goal, "%d %d", zip->num_file, zip->num_dir);
     Data_file *file = zip->file;
     while(file != NULL) {
         printf("%s %d\n", file->path, file->size);

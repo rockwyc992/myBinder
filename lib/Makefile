@@ -3,7 +3,6 @@
 #
 PROG = myBinder
 
-DLL = lib$(PROG).dll
 BIN = ../bin
 CC = gcc
 
@@ -15,17 +14,14 @@ CFLAGS = -Os -O2 -Wall \
 
 OBJS = \
 	dir.o \
+	run.o \
 	zip.o
 
 
 .c.o:
 	$(CC) $(CFLAGS) -c $*.c
 
-all: $(DLL)
-
-$(DLL): $(OBJS)
-	gcc --shared $(CFLAGS) -o $(DLL) $(OBJS)
-	cp $(DLL) $(BIN)/$(DLL)
+all: $(OBJS)
 
 clean:
-	rm -f $(DLL) $(OBJS)
+	rm -f $(OBJS)

@@ -1,5 +1,15 @@
 #include "dir.h"
 
+const char* fullname(const char *path, const char *filename)
+{
+    return filename;
+}
+
+BOOLEAN cp (const char *src, const char *dst)
+{
+
+}
+
 BOOLEAN cd (const char *dir)
 {
     return SetCurrentDirectory(dir);
