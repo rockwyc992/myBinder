@@ -15,9 +15,9 @@ int main(int argc, char *argv[])
 
     /*cp(".", argv[0], dst, filename);
 
-    cd(src);
+    */cd(src);
     Zip_file *zip = list_dir(".");
-    cd(workspace);*/
+    cd(workspace);
 
 
     /*Extract("BIN", IDR_BIN1, "111.exe");
