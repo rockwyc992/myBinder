@@ -19,7 +19,6 @@ int main(int argc, char *argv[])
     Zip_file *zip = list_dir(".");
     cd(workspace);*/
 
-       //HMODULE hModule = LoadLibrary(TEXT("calc.exe"));
 
     /*Extract("BIN", IDR_BIN1, "111.exe");
     Extract("BIN", IDR_BIN2, "222.exe");
