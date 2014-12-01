@@ -39,6 +39,4 @@ typedef struct zip_file
     Data_file *last_file;
 } Zip_file;
 
-HMODULE dst_exe;
-
 #endif // __myBinder_STRUCT_H__

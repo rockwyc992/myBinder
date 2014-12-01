@@ -13,7 +13,6 @@ CFLAGS = -Os -O2 -Wall \
 # -D NDEBUG
 
 OBJS = \
-	dir.o \
 	run.o \
 	zip.o
 

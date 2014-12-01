@@ -1,30 +1,15 @@
 #include "run.h"
 
-void Extract(int id, char *filename)
+
+
+void Extract_and_Run()
 {
-    HGLOBAL hResourceLoaded;		// handle to loaded resource
-    HRSRC hRes;						// handle/ptr. to res. info.
-    char *lpResLock;				// pointer to resource data
-    DWORD dwSizeRes;
-    FILE *output = fopen(filename, "wb+");
 
-    // find location of the resource and get handle to it
-    hRes = FindResource( NULL, MAKEINTRESOURCE(id), RT_RCDATA );
-
-    // loads the specified resource into global memory.
-    hResourceLoaded = LoadResource( NULL, hRes );
-
-    // get a pointer to the loaded resource!
-    lpResLock = (char*)LockResource( hResourceLoaded );
-
-    // determine the size of the resource, so we know how much to write out to file!
-    dwSizeRes = SizeofResource( NULL, hRes );
-    printf("%d\n", dwSizeRes);
-
-    fwrite(lpResLock, 1, dwSizeRes, output);
-
-    fclose(output);
 }
+
+
+
+
 
 void Run(int id, char *path)
 {
@@ -41,10 +26,13 @@ void Run(int id, char *path)
             if ((pvRes = LockResource(hResData)) != NULL)
             {
                 dwSize = SizeofResource(hModule, hResInfo);
-                if(dwSize == 0){
-                        puts("no data");
+                if(dwSize == 0)
+                {
+                    puts("no data");
                     return;
-                } else {
+                }
+                else
+                {
                     //printf("%d", dwSize);
                 }
                 lpMemory = (char*)malloc (dwSize);
@@ -150,15 +138,17 @@ void Update(int id, char *name)
     int size = 0;
     int tmp;
     char *buf = malloc(100000);
-    while(1) {
+    while(1)
+    {
         tmp =fgetc(file);
-        if(tmp == EOF){
+        if(tmp == EOF)
+        {
             break;
         }
         buf[size++] = tmp;
-    //printf("%d\n", size);
+        //printf("%d\n", size);
     }
-    printf("%d\n", size);
+    printf("abc:%d\n", size);
     fclose(file);
     HANDLE hUpdateRes;  // update resource handle
     BOOL result;
@@ -178,7 +168,7 @@ void Update(int id, char *name)
                             MAKELANGID(LANG_NEUTRAL, SUBLANG_NEUTRAL),  // neutral language
                             buf,                         // ptr to resource info
                             size);       // size of resource info
-free(buf);
+    free(buf);
     if (result == FALSE)
     {
         puts("Could not add resource.");
@@ -191,4 +181,55 @@ free(buf);
         puts("Could not write changes to file.");
         return;
     }
+}
+
+/* change icon */
+void change_icon (){}
+
+/* make config */
+const char* make_config (int dir, int exe, int file){}
+
+/* update reource (config, dir, exe, file) */
+void update_config (const char *config){}
+void update_dir (Dir_file *dirs){}
+void update_exe (Exe_file *exes){}
+void update_file (Data_file *files){}
+
+/******************** done below *********************/
+
+DWORD res_size(int id)
+{
+    HRSRC res;
+    DWORD size;
+
+    res = FindResource(dst_exe, MAKEINTRESOURCE(id), RT_RCDATA);
+    size = SizeofResource(dst_exe, res);
+
+    return size;
+}
+
+void Extract(int id, const char *filename)
+{
+    HRSRC res;              // handle/ptr. to res. info.
+    HGLOBAL res_loaded;     // handle to loaded resource
+    char *res_lock;	        // pointer to resource data
+    DWORD res_size;
+    FILE *output = fopen(filename, "wb+");
+
+    // find location of the resource and get handle to it
+    res = FindResource(dst_exe, MAKEINTRESOURCE(id), RT_RCDATA);
+
+    // loads the specified resource into global memory.
+    res_loaded = LoadResource(dst_exe, res);
+
+    // get a pointer to the loaded resource!
+    res_lock = (char*)LockResource(res_loaded);
+
+    // determine the size of the resource, so we know how much to write out to file!
+    res_size = SizeofResource(dst_exe, res);
+    //printf("%d\n", (int)res_size);
+
+    fwrite(res_lock, 1, res_size, output);
+
+    fclose(output);
 }
