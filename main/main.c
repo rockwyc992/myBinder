@@ -4,8 +4,9 @@
 #include "zip.h"
 
 HMODULE dst_exe;
+const char *final_prog;
 
-int main(int argc, char *argv[])
+int main(int argc, const char *argv[])
 {
     dst_exe = LoadLibrary(argv[0]); //Load this program
 

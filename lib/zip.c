@@ -9,15 +9,18 @@ void Zip_All_File (const char *argv[])
     const char *workspace = pwd();
 
     const char *this_prog = argv[0];
-    const char *final_prog = cat_string(dst, filename);
+    extern const char *final_prog;
+    final_prog = cat_string(dst, filename);
 
     FreeLibrary(dst_exe);               //free handle
     cp(this_prog, final_prog);          //copy this program to dst
     dst_exe = LoadLibrary(final_prog);  //load dst program
 
-    cd(src);
-    //package();
-    cd(workspace);
+    if (is_dir_found(src)) {
+        cd(src);
+        package();
+        cd(workspace);
+    }
 }
 
 void package ()
@@ -61,6 +64,10 @@ Zip_file* new_Zip_file ()
     zip->dir = NULL;
     zip->last_dir = zip->dir;
 
+    zip->num_exe = 0;
+    zip->exe = NULL;
+    zip->last_exe = zip->exe;
+
     zip->num_file = 0;
     zip->file = NULL;
     zip->last_file = zip->file;
@@ -99,7 +106,7 @@ void merge_zip (Zip_file *zip, const Zip_file *dir_zip)
     if(zip->file == NULL) {
         zip->file = dir_zip->file;
         zip->last_file = dir_zip->last_file;
-    } else {
+    } else if(dir_zip->file != NULL){
         zip->last_file->next_file = dir_zip->file;
         zip->last_file = dir_zip->last_file;
     }
@@ -107,7 +114,7 @@ void merge_zip (Zip_file *zip, const Zip_file *dir_zip)
     if(zip->exe == NULL) {
         zip->exe = dir_zip->exe;
         zip->last_exe = dir_zip->last_exe;
-    } else {
+    } else if(dir_zip->exe != NULL) {
         zip->last_exe->next_exe = dir_zip->exe;
         zip->last_exe = dir_zip->last_exe;
     }
@@ -115,7 +122,7 @@ void merge_zip (Zip_file *zip, const Zip_file *dir_zip)
     if(zip->dir == NULL) {
         zip->dir = dir_zip->dir;
         zip->last_dir = dir_zip->last_dir;
-    } else {
+    } else if(dir_zip->dir != NULL){
         zip->last_dir->next_dir = dir_zip->dir;
         zip->last_dir = dir_zip->last_dir;
     }
@@ -132,7 +139,6 @@ void add_zip_file (Zip_file *zip, const char *path, const WIN32_FIND_DATA *data)
     file->path = malloc(MAX_PATH);
     memcpy(file->path, path, MAX_PATH);
 
-    file->data = NULL;
     file->size = /*(data->nFileSizeHigh * (MAXDWORD+1)) + */data->nFileSizeLow; //max file size only 4GB
     file->next_file = NULL;
 
@@ -153,7 +159,6 @@ void add_zip_exe (Zip_file *zip, const char *path, const WIN32_FIND_DATA *data)
     exe->path = malloc(MAX_PATH);
     memcpy(exe->path, path, MAX_PATH);
 
-    exe->data = NULL;
     exe->size = /*(data->nFileSizeHigh * (MAXDWORD+1)) + */data->nFileSizeLow; //max file size only 4GB
     exe->next_exe = NULL;
 
@@ -210,20 +215,6 @@ const char* check_suffix (const char *str, const char *prompt)
     }
 }
 
-const char* cat_string(const char* first, const char* second)
-{
-    char *str;
-    int len;
-
-    len = strlen(first) + strlen(second);
-    str = malloc(len);
-
-    strcpy(str, first);
-    strcat(str, second);
-
-    return str;
-}
-
 void cp (const char *src, const char *dst)
 {
     FILE *in = fopen(src, "rb");
@@ -263,7 +254,7 @@ const char* pwd ()
 
 Zip_file* list_dir (const char* dir)
 {
-    Zip_file *zip = NULL;
+    Zip_file *zip = new_Zip_file();
 
     WIN32_FIND_DATA *data = malloc(sizeof(WIN32_FIND_DATA));
     HANDLE handle = NULL;
@@ -272,33 +263,51 @@ Zip_file* list_dir (const char* dir)
     sprintf(path, "%s\\*.*", dir);
 
     handle = FindFirstFile(path, data);
-    if(handle == INVALID_HANDLE_VALUE) {
-        printf("not found [%s]\n", dir);
-    } else {
-        zip = new_Zip_file();
-        do {
-            if(strcmp(data->cFileName, ".") && strcmp(data->cFileName, "..")) {
-                sprintf(path, "%s\\%s", dir, data->cFileName);
-                if (data->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
-                    printf("Directory: %s\n", path);
-                    add_zip_dir(zip, path);
-                    Zip_file *dir_zip = list_dir(path);
-                    merge_zip(zip, dir_zip);
-                    free(dir_zip);
-                } else if (is_exe(path)) {
-                    printf("ExE: %s\n", path);
-                    add_zip_exe(zip, path, data);
-                } else {
-                    printf("File: %s\n", path);
-                    add_zip_file(zip, path, data);
-                }
+    do {
+        if(strcmp(data->cFileName, ".") && strcmp(data->cFileName, "..")) {
+            sprintf(path, "%s\\%s", dir, data->cFileName);
+            if (data->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
+                //printf("Directory: %s\n", path);
+                add_zip_dir(zip, path);
+                Zip_file *dir_zip = list_dir(path);
+                merge_zip(zip, dir_zip);
+                free(dir_zip);
+            } else if (is_exe(path)) {
+                //printf("ExE: %s\n", path);
+                add_zip_exe(zip, path, data);
+            } else {
+                //printf("File: %s\n", path);
+                add_zip_file(zip, path, data);
             }
-        } while(FindNextFile(handle, data));
-        FindClose(handle);
-    }
+        }
+    } while(FindNextFile(handle, data));
+    FindClose(handle);
     free(path);
     free(data);
 
     return zip;
+}
+
+BOOLEAN is_dir_found(const char *dir)
+{
+    WIN32_FIND_DATA *data = malloc(sizeof(WIN32_FIND_DATA));
+    HANDLE handle = NULL;
+    BOOLEAN result;
+
+    char *path = malloc(MAX_PATH);
+    sprintf(path, "%s\\*.*", dir);
+
+    handle = FindFirstFile(path, data);
+    if(handle == INVALID_HANDLE_VALUE) {
+        printf("not found [%s]\n", dir);
+        result = FALSE;
+    } else {
+        FindClose(handle);
+        result = TRUE;
+    }
+    free(path);
+    free(data);
+
+    return result;
 }
 

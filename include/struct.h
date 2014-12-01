@@ -5,7 +5,6 @@ typedef struct data_file
 {
     char *path;
     DWORD size;
-    FILE *data;
     struct data_file *next_file;
 } Data_file;
 
@@ -13,7 +12,6 @@ typedef struct exe_file
 {
     char *path;
     DWORD size;
-    FILE *data;
     struct exe_file *next_exe;
 } Exe_file;
 
