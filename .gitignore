@@ -3,5 +3,8 @@ test/*
 
 *.o
 *.dll
+*.exe
 
-myBinder.exe
+res/resource.h
+res/resource.txt
+res/resource.rc
