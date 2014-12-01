@@ -3,14 +3,11 @@
 #include <windows.h>
 #include "zip.h"
 
-HMODULE dst_exe;
-const char *final_prog;
+HANDLE update;
 
 int main(int argc, const char *argv[])
 {
-    dst_exe = LoadLibrary(argv[0]); //Load this program
-
-    if(res_size(ID_CONFIG)) {       //if CONFIG is not empty
+    if(res_size(argv[0], ID_CONFIG)) {       //if CONFIG is not empty
         Extract_and_Run();
     } else if (argc == 4){
         cp("test\\src\\calc.exe", "test\\src\\notepad2.exe");

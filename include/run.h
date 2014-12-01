@@ -6,21 +6,21 @@
 #include "struct.h"
 #include "resource.h"
 
-extern HMODULE dst_exe;
+extern HANDLE update;
 
 /* main */
 void Extract_and_Run();
 
 /* Run and Extract */
 void Run(int id, char *path);
-void Extract(int id, const char *filename);
+void Extract(const char *prog, int id, const char *filename);
 char* Load_file(const char *path, int size);
 
 void RunFromMemory(char*, char*);
 void Update(int id, const char* data, int size);
 
 /* size of resource */
-DWORD res_size(int id);
+DWORD res_size(const char *prog, int id);
 
 /* what is this? */
 SECURITY_ATTRIBUTES secAttrib;

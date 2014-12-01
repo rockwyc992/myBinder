@@ -7,7 +7,7 @@
 #include "run.h"
 #include "struct.h"
 
-extern HMODULE dst_exe;
+extern HANDLE update;
 
 /* main */
 void Zip_All_File (const char *argv[]);

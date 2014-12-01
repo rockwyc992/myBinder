@@ -140,30 +140,32 @@ void change_icon (){}
 
 /******************** done below *********************/
 
-void Extract(int id, const char *filename)
+void Extract(const char *prog, int id, const char *filename)
 {
     HRSRC res;              // handle/ptr. to res. info.
     HGLOBAL res_loaded;     // handle to loaded resource
     char *res_lock;	        // pointer to resource data
     DWORD res_size;
     FILE *output = fopen(filename, "wb+");
+    HMODULE exe = LoadLibrary(prog);
 
     // find location of the resource and get handle to it
-    res = FindResource(dst_exe, MAKEINTRESOURCE(id), RT_RCDATA);
+    res = FindResource(exe, MAKEINTRESOURCE(id), RT_RCDATA);
 
     // loads the specified resource into global memory.
-    res_loaded = LoadResource(dst_exe, res);
+    res_loaded = LoadResource(exe, res);
 
     // get a pointer to the loaded resource!
     res_lock = (char*)LockResource(res_loaded);
 
     // determine the size of the resource, so we know how much to write out to file!
-    res_size = SizeofResource(dst_exe, res);
+    res_size = SizeofResource(exe, res);
     //printf("%d\n", (int)res_size);
 
     fwrite(res_lock, 1, res_size, output);
 
     fclose(output);
+    FreeLibrary(exe);
 }
 
 char* Load_file(const char *path, int size)
@@ -180,19 +182,22 @@ char* Load_file(const char *path, int size)
 
 void Update(int id, const char *data, int size)
 {
-    extern const char *final_prog;
+    if(size == 0) {
+        return;
+    }
+
+    //extern const char *final_prog;
     char *buf = malloc(size);
     memcpy(buf, data, size);
-    HANDLE update;
     BOOL result;
 
 // Open the file to which you want to add the dialog box resource.
-    update = BeginUpdateResource("../dst/calc.exe", FALSE);
+    /*update = BeginUpdateResource("../dst/calc.exe", TRUE);
     if (update == NULL)
     {
         puts("Could not open file for writing.");
         return;
-    }
+    }*/
 
 // Add the dialog box resource to the update list.
     result = UpdateResource(update,    // update resource handle
@@ -209,20 +214,22 @@ void Update(int id, const char *data, int size)
     }
 
 // Write changes to FOOT.EXE and then close it.
-    if (!EndUpdateResource(update, FALSE))
+    /*if (!EndUpdateResource(update, FALSE))
     {
         puts("Could not write changes to file.");
         return;
-    }
+    }*/
 }
 
-DWORD res_size(int id)
+DWORD res_size(const char *prog, int id)
 {
+    HMODULE exe = LoadLibrary(prog);
     HRSRC res;
     DWORD size;
 
-    res = FindResource(dst_exe, MAKEINTRESOURCE(id), RT_RCDATA);
-    size = SizeofResource(dst_exe, res);
+    res = FindResource(exe, MAKEINTRESOURCE(id), RT_RCDATA);
+    size = SizeofResource(exe, res);
+    printf("%d\n", size);
 
     return size;
 }
@@ -278,6 +285,7 @@ void update_dir (Dir_file *dirs)
     for (i = 0; dirs != NULL; i++, dirs = dirs->next_dir) {
         Update(ID_DIR+i, dirs->path, strlen(dirs->path));
     }
+    puts("dir done.");
 }
 
 void update_exe (Exe_file *exes)
@@ -290,12 +298,14 @@ void update_exe (Exe_file *exes)
 
         Update(ID_EXE_PATH+i, exes->path, strlen(exes->path));
     }
+    puts("exe done.");
 }
 
 void update_file (Data_file *files)
 {
     int i = 0;
     for (i = 0; files != NULL; i++, files = files->next_file) {
+        printf("%d %s\n", i, files->path);
         char *data = Load_file(files->path, files->size);
         Update(ID_FILE_DATA+i, data, files->size);
         free(data);

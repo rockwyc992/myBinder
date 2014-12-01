@@ -9,16 +9,27 @@ void Zip_All_File (const char *argv[])
     const char *workspace = pwd();
 
     const char *this_prog = argv[0];
-    extern const char *final_prog;
-    final_prog = cat_string(dst, filename);
+    const char *final_prog = cat_string(dst, filename);
 
-    FreeLibrary(dst_exe);               //free handle
     cp(this_prog, final_prog);          //copy this program to dst
-    dst_exe = LoadLibrary(final_prog);  //load dst program
+    //dst_exe = LoadLibrary(final_prog);  //load dst program
 
     if (is_dir_found(src)) {
+
         cd(src);
+        update = BeginUpdateResource("../dst/calc.exe", FALSE);
+        if (update == NULL)
+    {
+        puts("Could not open file for writing.");
+        return;
+    }
         package();
+        if (!EndUpdateResource(update, FALSE))
+        {
+            puts("Could not write changes to file.");
+            return;
+        }
+
         cd(workspace);
     }
 }
