@@ -14,7 +14,7 @@ void Zip_All_File (const char *argv[]);
 
 /* list_dir, package_dir */
 Zip_file* list_dir (const char *dir);
-void package ();
+void package (Zip_file *zip, const char *prog, const char *src);
 
 /* Zip_file => new, free, merge */
 Zip_file* new_Zip_file ();

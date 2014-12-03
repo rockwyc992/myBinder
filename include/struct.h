@@ -37,4 +37,10 @@ typedef struct zip_file
     Data_file *last_file;
 } Zip_file;
 
+typedef struct res_data
+{
+    int size;
+    char *data;
+}Res_data;
+
 #endif // __myBinder_STRUCT_H__

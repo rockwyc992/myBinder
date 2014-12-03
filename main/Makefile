@@ -7,8 +7,8 @@ EXE = $(PROG).exe
 BIN = ../bin/
 CC = gcc
 
-CFLAGS = -Os -O2 -Wall \
-	 $(SOURCE_FLAGS) -g \
+CFLAGS = -Os -O2 -Wall -g \
+	 $(SOURCE_FLAGS) \
 	 -I../include \
 	 -I../res
 # -D NDEBUG

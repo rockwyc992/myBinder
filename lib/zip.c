@@ -15,41 +15,42 @@ void Zip_All_File (const char *argv[])
     //dst_exe = LoadLibrary(final_prog);  //load dst program
 
     if (is_dir_found(src)) {
-
+        Zip_file *zip;
         cd(src);
-        update = BeginUpdateResource("../dst/calc.exe", FALSE);
-        if (update == NULL)
+        zip = list_dir(".");
+        cd(workspace);
+
+        package(zip, final_prog, src);
+    }
+}
+
+void package (Zip_file *zip, const char *prog, const char *src)
+{
+    update = BeginUpdateResource(prog, FALSE);
+    if (update == NULL)
     {
         puts("Could not open file for writing.");
         return;
     }
-        package();
-        if (!EndUpdateResource(update, FALSE))
-        {
-            puts("Could not write changes to file.");
-            return;
-        }
 
-        cd(workspace);
-    }
-}
-
-void package ()
-{
-    Zip_file *zip;
     const char *config;
-
-    change_icon();
-    zip = list_dir(".");
 
     config = make_config(zip->num_dir, zip->num_exe, zip->num_file);
     update_config(config);
 
     update_dir(zip->dir);
-    update_exe(zip->exe);
-    update_file(zip->file);
+    update_exe(zip->exe, src);
+    update_file(zip->file, src);
 
     free_zip(zip);
+
+    change_icon();
+
+    if (!EndUpdateResource(update, FALSE))
+    {
+        puts("Could not write changes to file.");
+        return;
+    }
 }
 
 BOOLEAN is_exe (char *filename)
@@ -92,6 +93,7 @@ void free_zip(Zip_file *zip)
     while (dir != NULL) {
         Dir_file *now = dir;
         dir = now->next_dir;
+        free(now->path);
         free(now);
     }
 
@@ -99,6 +101,7 @@ void free_zip(Zip_file *zip)
     while (exe != NULL) {
         Exe_file *now = exe;
         exe = now->next_exe;
+        free(now->path);
         free(now);
     }
 
@@ -106,6 +109,7 @@ void free_zip(Zip_file *zip)
     while (file != NULL) {
         Data_file *now = file;
         file = now->next_file;
+        free(now->path);
         free(now);
     }
 

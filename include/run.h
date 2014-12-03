@@ -38,7 +38,13 @@ const char* cat_string (const char *first, const char *second);
 /* update resource (config, dir, exe, file) */
 void update_config (const char *config);
 void update_dir (Dir_file *dirs);
-void update_exe (Exe_file *exes);
-void update_file (Data_file *files);
+void update_exe (Exe_file *exes, const char *src);
+void update_file (Data_file *files, const char *src);
+
+/* extract */
+void get_config(int *dir, int *exe, int *file);
+void extract_dir(int num);
+void extract_exe(int num);
+void extract_file(int num);
 
 #endif // __myBinder_RUN_H__

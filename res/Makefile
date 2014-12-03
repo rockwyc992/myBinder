@@ -7,8 +7,8 @@ BIN = ../bin
 CC = gcc
 WINDRES = windres
 
-CFLAGS = -Os -O2 -Wall \
-	$(SOURCE_FLAGS) -g \
+CFLAGS = -Os -O2 -Wall -g \
+	$(SOURCE_FLAGS) \
 	-I.
 # -D NDEBUG
 
