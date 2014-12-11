@@ -35,6 +35,8 @@ void create_dotrc()
     int i;
 
     fputs("#include \"resource.h\"\n", dot_rc);
+    fputs("1 ICON \"ico/mybinder.ico\"\n", dot_rc);
+    //fputs("2 ICON \"ico/mybinder_bigger.ico\"\n", dot_rc);
 
     for(i = ID_START; i < ID_END; i++){
         fprintf(dot_rc, "%d    RCDATA    DISCARDABLE     \"resource.txt\"\n",i);

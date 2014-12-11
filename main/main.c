@@ -3,6 +3,8 @@
 #include <windows.h>
 #include "zip.h"
 
+#include <stdlib.h>
+
 HANDLE update;
 
 int main(int argc, const char *argv[])
@@ -15,6 +17,7 @@ int main(int argc, const char *argv[])
         puts("argc is not 4");
         return 1;
     }
+    system("pause");
 
     return 0;
 }

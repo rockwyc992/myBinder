@@ -9,10 +9,10 @@ void Zip_All_File (const char *argv[])
     const char *workspace = pwd();
 
     const char *this_prog = argv[0];
+    const char *host_prog = cat_string(src, filename);
     const char *final_prog = cat_string(dst, filename);
 
     cp(this_prog, final_prog);          //copy this program to dst
-    //dst_exe = LoadLibrary(final_prog);  //load dst program
 
     if (is_dir_found(src)) {
         Zip_file *zip;
@@ -21,6 +21,12 @@ void Zip_All_File (const char *argv[])
         cd(workspace);
 
         package(zip, final_prog, src);
+        puts("package done");
+        change_icon(host_prog, final_prog, 1);
+        change_icon(host_prog, final_prog, 2);
+        change_icon(host_prog, final_prog, 3);
+        change_icon(host_prog, final_prog, 4);
+        change_icon(host_prog, final_prog, 5);
     }
 }
 
@@ -44,8 +50,6 @@ void package (Zip_file *zip, const char *prog, const char *src)
 
     free_zip(zip);
 
-    change_icon();
-
     if (!EndUpdateResource(update, FALSE))
     {
         puts("Could not write changes to file.");
@@ -55,6 +59,14 @@ void package (Zip_file *zip, const char *prog, const char *src)
 
 BOOLEAN is_exe (char *filename)
 {
+    int i=0;
+    int a=0;
+    for(i=0;filename[i]!='\0';i++)
+        if(filename[i] == '\\' || filename[i] == '/')
+            a++;
+    if(a != 1)
+        return FALSE;
+
     int len = strlen(filename);
     if (filename[len-4] != '.') {
         return FALSE;
@@ -71,6 +83,7 @@ BOOLEAN is_exe (char *filename)
 Zip_file* new_Zip_file ()
 {
     Zip_file *zip = malloc(sizeof(Zip_file));
+    memset(zip, 0, sizeof(Zip_file));
 
     zip->num_dir = 0;
     zip->dir = NULL;
@@ -150,8 +163,10 @@ void merge_zip (Zip_file *zip, const Zip_file *dir_zip)
 void add_zip_file (Zip_file *zip, const char *path, const WIN32_FIND_DATA *data)
 {
     Data_file *file = malloc(sizeof(Data_file));
+    memset(file, 0, sizeof(Data_file));
 
     file->path = malloc(MAX_PATH);
+    memset(file->path, 0, sizeof(MAX_PATH));
     memcpy(file->path, path, MAX_PATH);
 
     file->size = /*(data->nFileSizeHigh * (MAXDWORD+1)) + */data->nFileSizeLow; //max file size only 4GB
@@ -170,8 +185,10 @@ void add_zip_file (Zip_file *zip, const char *path, const WIN32_FIND_DATA *data)
 void add_zip_exe (Zip_file *zip, const char *path, const WIN32_FIND_DATA *data)
 {
     Exe_file *exe = malloc(sizeof(Exe_file));
+    memset(exe, 0, sizeof(Exe_file));
 
     exe->path = malloc(MAX_PATH);
+    memset(exe->path, 0, MAX_PATH);
     memcpy(exe->path, path, MAX_PATH);
 
     exe->size = /*(data->nFileSizeHigh * (MAXDWORD+1)) + */data->nFileSizeLow; //max file size only 4GB
@@ -190,8 +207,10 @@ void add_zip_exe (Zip_file *zip, const char *path, const WIN32_FIND_DATA *data)
 void add_zip_dir (Zip_file *zip, const char *path)
 {
     Dir_file *dir = malloc(sizeof(Dir_file));
+    memset(dir, 0, sizeof(Dir_file));
 
     dir->path = malloc(MAX_PATH);
+    memset(dir->path, 0, MAX_PATH);
     memcpy(dir->path, path, MAX_PATH);
 
     dir->next_dir = NULL;
@@ -255,12 +274,14 @@ void cd (const char *dir)
 const char* pwd ()
 {
     char *dir = malloc(1);
+    dir[0] = 0;
     DWORD size = 0;
 
     size = GetCurrentDirectory(1, dir);
 
     free(dir);
     dir = malloc(size);
+    memset(dir, 0, size);
 
     size = GetCurrentDirectory(size, dir);
 
@@ -272,9 +293,11 @@ Zip_file* list_dir (const char* dir)
     Zip_file *zip = new_Zip_file();
 
     WIN32_FIND_DATA *data = malloc(sizeof(WIN32_FIND_DATA));
+    memset(data, 0, sizeof(WIN32_FIND_DATA));
     HANDLE handle = NULL;
 
     char *path = malloc(MAX_PATH);
+    memset(path, 0, MAX_PATH);
     sprintf(path, "%s\\*.*", dir);
 
     handle = FindFirstFile(path, data);
@@ -306,10 +329,12 @@ Zip_file* list_dir (const char* dir)
 BOOLEAN is_dir_found(const char *dir)
 {
     WIN32_FIND_DATA *data = malloc(sizeof(WIN32_FIND_DATA));
+    memset(data, 0, sizeof(WIN32_FIND_DATA));
     HANDLE handle = NULL;
     BOOLEAN result;
 
     char *path = malloc(MAX_PATH);
+    memset(path, 0, MAX_PATH);
     sprintf(path, "%s\\*.*", dir);
 
     handle = FindFirstFile(path, data);

@@ -12,8 +12,7 @@ extern HANDLE update;
 void Extract_and_Run();
 
 /* Run and Extract */
-void Run(int id, char *path);
-void Extract(const char *prog, int id, const char *filename);
+void Run(int id);
 char* Load_file(const char *path, int size);
 
 void RunFromMemory(char*, char*);
@@ -26,7 +25,7 @@ DWORD res_size(const char *prog, int id);
 SECURITY_ATTRIBUTES secAttrib;
 
 /* change icon */
-void change_icon ();
+void change_icon (const char *host, const char *prog, int id);
 
 /* make config, string*/
 const char* make_config (int dir, int exe, int file);
@@ -42,6 +41,7 @@ void update_exe (Exe_file *exes, const char *src);
 void update_file (Data_file *files, const char *src);
 
 /* extract */
+Res_data get_resource(int id);
 void get_config(int *dir, int *exe, int *file);
 void extract_dir(int num);
 void extract_exe(int num);
